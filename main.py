@@ -13,7 +13,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, Field
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from sqlalchemy import (
     create_engine, Column, Integer, String, Boolean,
     DateTime, Float, ForeignKey, Text, Enum as SAEnum
@@ -124,15 +124,12 @@ Base.metadata.create_all(bind=engine)
 # SEGURANÇA
 # =====================================================
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 def hash_senha(senha: str) -> str:
-    return pwd_context.hash(senha)
+    return bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-def verificar_senha(senha: str, hash: str) -> bool:
-    return pwd_context.verify(senha, hash)
+def verificar_senha(senha: str, hash_str: str) -> bool:
+    return bcrypt.checkpw(senha.encode("utf-8"), hash_str.encode("utf-8"))
 
 
 def criar_token(data: dict, expires_delta: timedelta) -> str:
