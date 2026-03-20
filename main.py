@@ -845,8 +845,12 @@ async def payment_webhook(payload: dict):
 
 
 # =====================================================
-# HEALTH CHECK
+# HEALTH CHECK + VERSÃO
 # =====================================================
+
+# Controle de versão do app desktop
+APP_VERSION = "1.0.0"
+APP_DOWNLOAD_URL = os.getenv("APP_DOWNLOAD_URL", "https://github.com/SEU_USUARIO/orclips-releases/releases/latest/download/OrClips.exe")
 
 @app.get("/health", tags=["System"])
 def health():
@@ -854,6 +858,162 @@ def health():
         "status": "online",
         "version": "1.0.0",
         "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get("/app/version", tags=["System"])
+def app_version():
+    """
+    Retorna a versão mais recente do app desktop.
+    O app consulta este endpoint ao abrir para verificar se precisa atualizar.
+    """
+    return {
+        "version": APP_VERSION,
+        "download_url": APP_DOWNLOAD_URL,
+        "changelog": "Melhorias de estabilidade e novos recursos.",
+        "required": False  # True = forçar update, False = opcional
+    }
+
+
+@app.put("/admin/app-version", tags=["Admin"])
+def update_app_version(
+    version: str,
+    download_url: str = None,
+    changelog: str = None,
+    required: bool = False,
+    admin: User = Depends(require_admin),
+):
+    """Atualizar a versão do app e URL de download (admin)"""
+    global APP_VERSION, APP_DOWNLOAD_URL
+    APP_VERSION = version
+    if download_url:
+        APP_DOWNLOAD_URL = download_url
+    return {"message": f"Versão atualizada para {version}", "download_url": APP_DOWNLOAD_URL}
+
+
+# =====================================================
+# NOTIFICAÇÃO POR EMAIL (Resend / SMTP)
+# =====================================================
+
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "OrClips <noreply@orclips.com>")
+
+
+def enviar_email(to: str, subject: str, html: str):
+    """Envia email via Resend API (se configurado) ou ignora silenciosamente"""
+    if not RESEND_API_KEY:
+        print(f"[EMAIL] Resend não configurado. Email para {to} não enviado.")
+        return False
+    
+    try:
+        import httpx
+        resp = httpx.post(
+            "https://api.resend.com/emails",
+            headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
+            json={
+                "from": EMAIL_FROM,
+                "to": [to],
+                "subject": subject,
+                "html": html
+            },
+            timeout=10
+        )
+        return resp.status_code == 200
+    except Exception as e:
+        print(f"[EMAIL] Erro ao enviar: {e}")
+        return False
+
+
+def email_boas_vindas(nome: str, email: str, senha: str, plano: str):
+    """Template de email de boas-vindas com credenciais"""
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0A0F; color: #F0EFF4; padding: 40px; border-radius: 16px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 56px; height: 56px; border-radius: 16px; background: #8B2FC9; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; font-weight: 700;">◆</div>
+            <h1 style="color: #F0EFF4; margin: 12px 0 0;">Bem-vindo ao OrClips!</h1>
+        </div>
+        <p>Olá <strong>{nome}</strong>,</p>
+        <p>Sua conta foi criada com sucesso. Aqui estão suas credenciais de acesso:</p>
+        <div style="background: #16161F; border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 4px 0;"><strong>Email:</strong> {email}</p>
+            <p style="margin: 4px 0;"><strong>Senha:</strong> {senha}</p>
+            <p style="margin: 4px 0; color: #C77DFF;"><strong>Plano:</strong> {plano.upper()}</p>
+        </div>
+        <p>Para começar:</p>
+        <ol>
+            <li>Baixe o OrClips no link que recebeu</li>
+            <li>Abra o aplicativo e faça login com as credenciais acima</li>
+            <li>Aproveite todas as funcionalidades do seu plano!</li>
+        </ol>
+        <p style="color: #6B6A78; font-size: 12px; margin-top: 30px;">Este é um email automático. Não responda.</p>
+    </div>
+    """
+    enviar_email(email, "Bem-vindo ao OrClips! Suas credenciais de acesso", html)
+
+
+# =====================================================
+# ADMIN — CRIAR CLIENTE COM EMAIL AUTOMÁTICO
+# =====================================================
+
+class AdminCreateUser(BaseModel):
+    nome: str = Field(..., min_length=2)
+    email: EmailStr
+    senha: str = Field(..., min_length=6)
+    plano: str = "free"
+    enviar_email: bool = True
+
+
+@app.post("/admin/create-user", tags=["Admin"])
+def admin_create_user(
+    req: AdminCreateUser,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    Criar cliente diretamente pelo admin com plano já definido.
+    Opcionalmente envia email com credenciais.
+    """
+    # Verificar se email já existe
+    existing = db.query(User).filter(User.email == req.email).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="E-mail já cadastrado")
+
+    # Criar usuário
+    user = User(
+        email=req.email,
+        nome=req.nome,
+        senha_hash=hash_senha(req.senha),
+        plano=req.plano,
+        role=UserRole.USER
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    # Criar licença e subscription
+    db.add(License(user_id=user.id))
+    sub = Subscription(user_id=user.id, plano=req.plano)
+    if req.plano != PlanType.FREE:
+        sub.payment_status = "active"
+        sub.vencimento = datetime.now(timezone.utc) + timedelta(days=30)
+    db.add(sub)
+    db.commit()
+
+    # Enviar email de boas-vindas
+    email_enviado = False
+    if req.enviar_email:
+        email_boas_vindas(req.nome, req.email, req.senha, req.plano)
+        email_enviado = True
+
+    return {
+        "message": f"Cliente {req.nome} criado com plano {req.plano}",
+        "user_id": user.id,
+        "email_enviado": email_enviado,
+        "credenciais": {
+            "email": req.email,
+            "senha": req.senha,
+            "plano": req.plano
+        }
     }
 
 
