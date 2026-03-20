@@ -25,7 +25,12 @@ import enum
 # CONFIGURAÇÃO
 # =====================================================
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./orclips.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres.wglskacblzzzpuxumndg:Aspirina2020250525@aws-1-us-east-2.pooler.supabase.com:6543/postgres")
+
+# CORREÇÃO: Se a variável de ambiente tiver o host antigo, forçar o correto
+if "pzvsecxiehvlafgtserc" in DATABASE_URL:
+    DATABASE_URL = "postgresql://postgres.wglskacblzzzpuxumndg:Aspirina2020250525@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
+
 SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
