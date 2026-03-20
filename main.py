@@ -388,7 +388,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Conta desativada. Contacte o suporte.")
 
-    # Verificar fingerprint
+    # Verificar fingerprint (ADMIN PULA — pode logar de qualquer PC)
     license = db.query(License).filter(License.user_id == user.id).first()
     if not license:
         license = License(user_id=user.id)
@@ -396,7 +396,12 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(license)
 
-    if license.hardware_fingerprint is None:
+    if user.role == UserRole.ADMIN:
+        # Admin não tem restrição de fingerprint
+        license.ultima_verificacao = datetime.now(timezone.utc)
+        license.is_active = True
+        db.commit()
+    elif license.hardware_fingerprint is None:
         # Primeira ativação — vincular este PC
         license.hardware_fingerprint = req.hardware_fingerprint
         license.ativado_em = datetime.now(timezone.utc)
@@ -446,10 +451,11 @@ def refresh_token(req: RefreshRequest, db: Session = Depends(get_db)):
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail="Usuário não encontrado ou inativo")
 
-    # Verificar fingerprint
+    # Verificar fingerprint (admin pula)
     license = db.query(License).filter(License.user_id == user.id).first()
-    if license and license.hardware_fingerprint and license.hardware_fingerprint != req.hardware_fingerprint:
-        raise HTTPException(status_code=403, detail="Fingerprint não confere")
+    if user.role != UserRole.ADMIN:
+        if license and license.hardware_fingerprint and license.hardware_fingerprint != req.hardware_fingerprint:
+            raise HTTPException(status_code=403, detail="Fingerprint não confere")
 
     access_token = criar_token(
         data={"sub": str(user.id), "email": user.email, "plano": user.plano, "role": user.role},
@@ -486,10 +492,12 @@ def verify_license(
     license = db.query(License).filter(License.user_id == current_user.id).first()
 
     if not license or not license.is_active:
-        raise HTTPException(status_code=403, detail="Licença inativa")
+        if current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Licença inativa")
 
-    if license.hardware_fingerprint != req.hardware_fingerprint:
-        raise HTTPException(status_code=403, detail="Fingerprint não confere")
+    if current_user.role != UserRole.ADMIN:
+        if license and license.hardware_fingerprint != req.hardware_fingerprint:
+            raise HTTPException(status_code=403, detail="Fingerprint não confere")
 
     # Verificar vencimento da subscription
     sub = db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
