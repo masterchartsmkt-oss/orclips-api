@@ -1,18 +1,9 @@
-# === SERVIDOR (FastAPI) ===
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
 sqlalchemy==2.0.35
 python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+passlib==1.7.4
+bcrypt==3.2.2
 pydantic[email]==2.9.0
 python-multipart==0.0.12
-
-# === BANCO DE DADOS ===
-# Para SQLite (já incluso no Python)
-# Para PostgreSQL, descomente:
-# psycopg2-binary==2.9.9
-# Ou use Supabase:
-# supabase==2.9.0
-
-# === CLIENTE (vai no app desktop junto com gui.py) ===
-# requests==2.32.0  # (adicione ao requirements do app desktop)
+psycopg2-binary==2.9.9
