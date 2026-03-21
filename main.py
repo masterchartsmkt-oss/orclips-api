@@ -965,9 +965,10 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str, idioma: str
             "senha_label": "Senha",
             "plano_label": "Plano",
             "how_title": "Como começar:",
-            "step1": "Baixe o OrCast no link enviado",
+            "step1": "Baixe o OrCast clicando no botão abaixo",
             "step2": "Abra o aplicativo e faça login",
             "step3": "Aproveite o poder do seu plano!",
+            "download_btn": "BAIXAR ORCAST",
             "footer": "Este é um email automático. Não responda.",
         },
         "en": {
@@ -978,9 +979,10 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str, idioma: str
             "senha_label": "Password",
             "plano_label": "Plan",
             "how_title": "How to get started:",
-            "step1": "Download OrCast from the link provided",
+            "step1": "Download OrCast by clicking the button below",
             "step2": "Open the application and sign in",
             "step3": "Enjoy the power of your plan!",
+            "download_btn": "DOWNLOAD ORCAST",
             "footer": "This is an automated email. Do not reply.",
         },
         "es": {
@@ -991,9 +993,10 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str, idioma: str
             "senha_label": "Contraseña",
             "plano_label": "Plan",
             "how_title": "Cómo empezar:",
-            "step1": "Descarga OrCast desde el enlace enviado",
+            "step1": "Descarga OrCast haciendo clic en el botón de abajo",
             "step2": "Abre la aplicación e inicia sesión",
             "step3": "¡Disfruta el poder de tu plan!",
+            "download_btn": "DESCARGAR ORCAST",
             "footer": "Este es un correo automático. No respondas.",
         }
     }
@@ -1029,6 +1032,9 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str, idioma: str
                 </table>
             </div>
             <h3 style="color: #FFFFFF; font-size: 15px; margin: 0 0 12px; font-weight: 600;">{t['how_title']}</h3>
+            <div style="text-align: center; margin: 0 0 24px;">
+                <a href="{os.getenv('APP_DOWNLOAD_URL', 'https://orcast.com/download')}" style="display: inline-block; background: #FFD700; color: #000; font-size: 15px; font-weight: 700; padding: 14px 40px; border-radius: 10px; text-decoration: none; letter-spacing: 1px;">{t['download_btn']}</a>
+            </div>
             <div style="margin: 0 0 24px;">
                 <div style="display: flex; align-items: center; margin: 0 0 10px;">
                     <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.1); color: #FFD700; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">1</div>
