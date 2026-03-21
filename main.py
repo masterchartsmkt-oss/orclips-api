@@ -752,19 +752,22 @@ def admin_delete_user(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
-    """Desativar um usuário (soft delete)"""
+    """Excluir um usuário permanentemente"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     if user.role == UserRole.ADMIN:
-        raise HTTPException(status_code=400, detail="Não é possível desativar um admin")
+        raise HTTPException(status_code=400, detail="Não é possível excluir um admin")
 
-    user.is_active = False
-    license = db.query(License).filter(License.user_id == user.id).first()
-    if license:
-        license.is_active = False
+    email = user.email
+
+    # Deletar registros relacionados primeiro
+    db.query(UsageLog).filter(UsageLog.user_id == user.id).delete()
+    db.query(Subscription).filter(Subscription.user_id == user.id).delete()
+    db.query(License).filter(License.user_id == user.id).delete()
+    db.query(User).filter(User.id == user_id).delete()
     db.commit()
-    return {"message": f"Usuário {user.email} desativado"}
+    return {"message": f"Usuário {email} excluído permanentemente"}
 
 
 @app.get("/admin/stats", response_model=StatsOut, tags=["Admin"])
