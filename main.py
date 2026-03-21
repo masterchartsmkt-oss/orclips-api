@@ -895,7 +895,7 @@ def update_app_version(
 # NOTIFICAÇÃO POR EMAIL (Resend / SMTP)
 # =====================================================
 
-RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "re_MEyQ8pKL_FzxViPuY4gPXnQoVLikmUasn")
 EMAIL_FROM = os.getenv("EMAIL_FROM", "OrClips <noreply@ordreen.com>")
 
 # Importar requests para email no topo do módulo
