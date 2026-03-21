@@ -898,16 +898,18 @@ def update_app_version(
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 EMAIL_FROM = os.getenv("EMAIL_FROM", "OrClips <noreply@ordreen.com>")
 
+# Importar requests para email no topo do módulo
+import requests as _requests_lib
+
 
 def enviar_email(to: str, subject: str, html: str):
     """Envia email via Resend API"""
     if not RESEND_API_KEY:
-        print(f"[EMAIL] Resend não configurado. Email para {to} não enviado.")
+        print(f"[EMAIL] RESEND_API_KEY vazia! Email para {to} não enviado.")
         return False
     
     try:
-        import requests as req
-        resp = req.post(
+        resp = _requests_lib.post(
             "https://api.resend.com/emails",
             headers={
                 "Authorization": f"Bearer {RESEND_API_KEY}",
@@ -921,11 +923,31 @@ def enviar_email(to: str, subject: str, html: str):
             },
             timeout=10
         )
-        print(f"[EMAIL] Resend response: {resp.status_code} - {resp.text}")
+        print(f"[EMAIL] Status: {resp.status_code} | Resposta: {resp.text}")
         return resp.status_code == 200
     except Exception as e:
-        print(f"[EMAIL] Erro ao enviar: {e}")
+        print(f"[EMAIL] ERRO: {e}")
         return False
+
+
+@app.get("/admin/test-email", tags=["Admin"])
+def test_email(
+    to: str,
+    admin: User = Depends(require_admin),
+):
+    """Endpoint de teste — envia email simples para verificar se Resend funciona"""
+    resultado = enviar_email(
+        to=to,
+        subject="Teste OrClips - Email Funcionando!",
+        html="<h1>Teste OK!</h1><p>Se você recebeu isso, o sistema de email do OrClips está funcionando perfeitamente.</p>"
+    )
+    return {
+        "enviado": resultado,
+        "para": to,
+        "de": EMAIL_FROM,
+        "resend_key_configurada": bool(RESEND_API_KEY),
+        "resend_key_inicio": RESEND_API_KEY[:10] + "..." if RESEND_API_KEY else "VAZIA"
+    }
 
 
 def email_boas_vindas(nome: str, email: str, senha: str, plano: str):
@@ -952,7 +974,7 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str):
         <p style="color: #6B6A78; font-size: 12px; margin-top: 30px;">Este é um email automático. Não responda.</p>
     </div>
     """
-    enviar_email(email, "Bem-vindo ao OrClips! Suas credenciais de acesso", html)
+    return enviar_email(email, "Bem-vindo ao OrClips! Suas credenciais de acesso", html)
 
 
 # =====================================================
@@ -1006,8 +1028,7 @@ def admin_create_user(
     # Enviar email de boas-vindas
     email_enviado = False
     if req.enviar_email:
-        email_boas_vindas(req.nome, req.email, req.senha, req.plano)
-        email_enviado = True
+        email_enviado = email_boas_vindas(req.nome, req.email, req.senha, req.plano)
 
     return {
         "message": f"Cliente {req.nome} criado com plano {req.plano}",
