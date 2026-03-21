@@ -954,30 +954,57 @@ def test_email(
 
 
 def email_boas_vindas(nome: str, email: str, senha: str, plano: str):
-    """Template de email de boas-vindas com credenciais"""
+    """Template de email de boas-vindas OrCast — amarelo/preto"""
     html = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0A0F; color: #F0EFF4; padding: 40px; border-radius: 16px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div style="width: 56px; height: 56px; border-radius: 16px; background: #8B2FC9; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; font-weight: 700;">◆</div>
-            <h1 style="color: #F0EFF4; margin: 12px 0 0;">Bem-vindo ao OrClips!</h1>
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #060606; border-radius: 20px; overflow: hidden; border: 1px solid #1A1A18;">
+        <div style="background: #0E0E0E; padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid #1A1A18;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid #FFD700; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                <span style="color: #FFD700; font-size: 28px; font-weight: 800;">O</span>
+            </div>
+            <h1 style="color: #FFD700; font-size: 24px; margin: 0 0 4px; font-weight: 700; letter-spacing: 2px;">ORCAST</h1>
+            <p style="color: #555550; font-size: 12px; margin: 0; letter-spacing: 1px;">AUDIO INTELLIGENCE SUITE</p>
         </div>
-        <p>Olá <strong>{nome}</strong>,</p>
-        <p>Sua conta foi criada com sucesso. Aqui estão suas credenciais de acesso:</p>
-        <div style="background: #16161F; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 4px 0;"><strong>Email:</strong> {email}</p>
-            <p style="margin: 4px 0;"><strong>Senha:</strong> {senha}</p>
-            <p style="margin: 4px 0; color: #C77DFF;"><strong>Plano:</strong> {plano.upper()}</p>
+        <div style="padding: 36px 40px;">
+            <h2 style="color: #FFFFFF; font-size: 20px; margin: 0 0 8px; font-weight: 700;">Bem-vindo, {nome}!</h2>
+            <p style="color: #888880; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">Sua conta foi criada com sucesso. Use as credenciais abaixo para acessar o OrCast.</p>
+            <div style="background: #0E0E0E; border-left: 3px solid #FFD700; border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 0 0 24px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="color: #888880; font-size: 13px; padding: 6px 0; width: 80px;">Email</td>
+                        <td style="color: #FFFFFF; font-size: 14px; font-weight: 600; padding: 6px 0;">{email}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #888880; font-size: 13px; padding: 6px 0;">Senha</td>
+                        <td style="color: #FFFFFF; font-size: 14px; font-weight: 600; padding: 6px 0;">{senha}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #888880; font-size: 13px; padding: 6px 0;">Plano</td>
+                        <td style="padding: 6px 0;"><span style="background: rgba(255,215,0,0.12); color: #FFD700; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.5px;">{plano.upper()}</span></td>
+                    </tr>
+                </table>
+            </div>
+            <h3 style="color: #FFFFFF; font-size: 15px; margin: 0 0 12px; font-weight: 600;">Como começar:</h3>
+            <div style="margin: 0 0 24px;">
+                <div style="display: flex; align-items: center; margin: 0 0 10px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.1); color: #FFD700; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">1</div>
+                    <span style="color: #888880; font-size: 13px;">Baixe o OrCast no link enviado</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 0 0 10px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.1); color: #FFD700; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">2</div>
+                    <span style="color: #888880; font-size: 13px;">Abra o aplicativo e faça login</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.1); color: #FFD700; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">3</div>
+                    <span style="color: #888880; font-size: 13px;">Aproveite o poder do seu plano!</span>
+                </div>
+            </div>
+            <div style="height: 1px; background: linear-gradient(90deg, transparent, #FFD700, transparent); margin: 24px 0;"></div>
+            <p style="color: #555550; font-size: 11px; text-align: center; margin: 0;">OrCast — Audio Intelligence Suite</p>
+            <p style="color: #444440; font-size: 10px; text-align: center; margin: 4px 0 0;">Este é um email automático. Não responda.</p>
         </div>
-        <p>Para começar:</p>
-        <ol>
-            <li>Baixe o OrClips no link que recebeu</li>
-            <li>Abra o aplicativo e faça login com as credenciais acima</li>
-            <li>Aproveite todas as funcionalidades do seu plano!</li>
-        </ol>
-        <p style="color: #6B6A78; font-size: 12px; margin-top: 30px;">Este é um email automático. Não responda.</p>
     </div>
     """
-    return enviar_email(email, "Bem-vindo ao OrClips! Suas credenciais de acesso", html)
+    return enviar_email(email, "Bem-vindo ao OrCast! Suas credenciais de acesso", html)
 
 
 # =====================================================
