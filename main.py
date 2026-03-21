@@ -896,20 +896,23 @@ def update_app_version(
 # =====================================================
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
-EMAIL_FROM = os.getenv("EMAIL_FROM", "OrClips <noreply@orclips.com>")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "OrClips <noreply@ordreen.com>")
 
 
 def enviar_email(to: str, subject: str, html: str):
-    """Envia email via Resend API (se configurado) ou ignora silenciosamente"""
+    """Envia email via Resend API"""
     if not RESEND_API_KEY:
         print(f"[EMAIL] Resend não configurado. Email para {to} não enviado.")
         return False
     
     try:
-        import httpx
-        resp = httpx.post(
+        import requests as req
+        resp = req.post(
             "https://api.resend.com/emails",
-            headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            },
             json={
                 "from": EMAIL_FROM,
                 "to": [to],
@@ -918,6 +921,7 @@ def enviar_email(to: str, subject: str, html: str):
             },
             timeout=10
         )
+        print(f"[EMAIL] Resend response: {resp.status_code} - {resp.text}")
         return resp.status_code == 200
     except Exception as e:
         print(f"[EMAIL] Erro ao enviar: {e}")
