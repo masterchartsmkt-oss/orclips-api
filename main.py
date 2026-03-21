@@ -953,8 +953,53 @@ def test_email(
     }
 
 
-def email_boas_vindas(nome: str, email: str, senha: str, plano: str):
-    """Template de email de boas-vindas OrCast — amarelo/preto"""
+def email_boas_vindas(nome: str, email: str, senha: str, plano: str, idioma: str = "pt"):
+    """Template de email de boas-vindas OrCast — multilíngue (pt, en, es)"""
+    
+    textos = {
+        "pt": {
+            "subject": "Bem-vindo ao OrCast! Suas credenciais de acesso",
+            "welcome": f"Bem-vindo, {nome}!",
+            "desc": "Sua conta foi criada com sucesso. Use as credenciais abaixo para acessar o OrCast.",
+            "email_label": "Email",
+            "senha_label": "Senha",
+            "plano_label": "Plano",
+            "how_title": "Como começar:",
+            "step1": "Baixe o OrCast no link enviado",
+            "step2": "Abra o aplicativo e faça login",
+            "step3": "Aproveite o poder do seu plano!",
+            "footer": "Este é um email automático. Não responda.",
+        },
+        "en": {
+            "subject": "Welcome to OrCast! Your access credentials",
+            "welcome": f"Welcome, {nome}!",
+            "desc": "Your account has been created successfully. Use the credentials below to access OrCast.",
+            "email_label": "Email",
+            "senha_label": "Password",
+            "plano_label": "Plan",
+            "how_title": "How to get started:",
+            "step1": "Download OrCast from the link provided",
+            "step2": "Open the application and sign in",
+            "step3": "Enjoy the power of your plan!",
+            "footer": "This is an automated email. Do not reply.",
+        },
+        "es": {
+            "subject": "¡Bienvenido a OrCast! Tus credenciales de acceso",
+            "welcome": f"¡Bienvenido, {nome}!",
+            "desc": "Tu cuenta ha sido creada exitosamente. Usa las credenciales a continuación para acceder a OrCast.",
+            "email_label": "Correo",
+            "senha_label": "Contraseña",
+            "plano_label": "Plan",
+            "how_title": "Cómo empezar:",
+            "step1": "Descarga OrCast desde el enlace enviado",
+            "step2": "Abre la aplicación e inicia sesión",
+            "step3": "¡Disfruta el poder de tu plan!",
+            "footer": "Este es un correo automático. No respondas.",
+        }
+    }
+    
+    t = textos.get(idioma, textos["pt"])
+    
     html = f"""
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #060606; border-radius: 20px; overflow: hidden; border: 1px solid #1A1A18;">
         <div style="background: #0E0E0E; padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid #1A1A18;">
@@ -965,46 +1010,46 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str):
             <p style="color: #555550; font-size: 12px; margin: 0; letter-spacing: 1px;">AUDIO INTELLIGENCE SUITE</p>
         </div>
         <div style="padding: 36px 40px;">
-            <h2 style="color: #FFFFFF; font-size: 20px; margin: 0 0 8px; font-weight: 700;">Bem-vindo, {nome}!</h2>
-            <p style="color: #888880; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">Sua conta foi criada com sucesso. Use as credenciais abaixo para acessar o OrCast.</p>
+            <h2 style="color: #FFFFFF; font-size: 20px; margin: 0 0 8px; font-weight: 700;">{t['welcome']}</h2>
+            <p style="color: #888880; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">{t['desc']}</p>
             <div style="background: #0E0E0E; border-left: 3px solid #FFD700; border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 0 0 24px;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
-                        <td style="color: #888880; font-size: 13px; padding: 6px 0; width: 80px;">Email</td>
+                        <td style="color: #888880; font-size: 13px; padding: 6px 0; width: 90px;">{t['email_label']}</td>
                         <td style="color: #FFFFFF; font-size: 14px; font-weight: 600; padding: 6px 0;">{email}</td>
                     </tr>
                     <tr>
-                        <td style="color: #888880; font-size: 13px; padding: 6px 0;">Senha</td>
+                        <td style="color: #888880; font-size: 13px; padding: 6px 0;">{t['senha_label']}</td>
                         <td style="color: #FFFFFF; font-size: 14px; font-weight: 600; padding: 6px 0;">{senha}</td>
                     </tr>
                     <tr>
-                        <td style="color: #888880; font-size: 13px; padding: 6px 0;">Plano</td>
+                        <td style="color: #888880; font-size: 13px; padding: 6px 0;">{t['plano_label']}</td>
                         <td style="padding: 6px 0;"><span style="background: rgba(255,215,0,0.12); color: #FFD700; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.5px;">{plano.upper()}</span></td>
                     </tr>
                 </table>
             </div>
-            <h3 style="color: #FFFFFF; font-size: 15px; margin: 0 0 12px; font-weight: 600;">Como começar:</h3>
+            <h3 style="color: #FFFFFF; font-size: 15px; margin: 0 0 12px; font-weight: 600;">{t['how_title']}</h3>
             <div style="margin: 0 0 24px;">
                 <div style="display: flex; align-items: center; margin: 0 0 10px;">
                     <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.1); color: #FFD700; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">1</div>
-                    <span style="color: #888880; font-size: 13px;">Baixe o OrCast no link enviado</span>
+                    <span style="color: #888880; font-size: 13px;">{t['step1']}</span>
                 </div>
                 <div style="display: flex; align-items: center; margin: 0 0 10px;">
                     <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.1); color: #FFD700; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">2</div>
-                    <span style="color: #888880; font-size: 13px;">Abra o aplicativo e faça login</span>
+                    <span style="color: #888880; font-size: 13px;">{t['step2']}</span>
                 </div>
                 <div style="display: flex; align-items: center;">
                     <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.1); color: #FFD700; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">3</div>
-                    <span style="color: #888880; font-size: 13px;">Aproveite o poder do seu plano!</span>
+                    <span style="color: #888880; font-size: 13px;">{t['step3']}</span>
                 </div>
             </div>
             <div style="height: 1px; background: linear-gradient(90deg, transparent, #FFD700, transparent); margin: 24px 0;"></div>
             <p style="color: #555550; font-size: 11px; text-align: center; margin: 0;">OrCast — Audio Intelligence Suite</p>
-            <p style="color: #444440; font-size: 10px; text-align: center; margin: 4px 0 0;">Este é um email automático. Não responda.</p>
+            <p style="color: #444440; font-size: 10px; text-align: center; margin: 4px 0 0;">{t['footer']}</p>
         </div>
     </div>
     """
-    return enviar_email(email, "Bem-vindo ao OrCast! Suas credenciais de acesso", html)
+    return enviar_email(email, t['subject'], html)
 
 
 # =====================================================
@@ -1016,6 +1061,7 @@ class AdminCreateUser(BaseModel):
     email: EmailStr
     senha: str = Field(..., min_length=6)
     plano: str = "free"
+    idioma: str = "pt"  # pt, en, es
     enviar_email: bool = True
 
 
@@ -1058,7 +1104,7 @@ def admin_create_user(
     # Enviar email de boas-vindas
     email_enviado = False
     if req.enviar_email:
-        email_enviado = email_boas_vindas(req.nome, req.email, req.senha, req.plano)
+        email_enviado = email_boas_vindas(req.nome, req.email, req.senha, req.plano, req.idioma)
 
     return {
         "message": f"Cliente {req.nome} criado com plano {req.plano}",
