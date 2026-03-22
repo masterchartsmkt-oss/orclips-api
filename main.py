@@ -1033,7 +1033,7 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str, idioma: str
             </div>
             <h3 style="color: #FFFFFF; font-size: 15px; margin: 0 0 12px; font-weight: 600;">{t['how_title']}</h3>
             <div style="text-align: center; margin: 0 0 24px;">
-                <a href="{os.getenv('APP_DOWNLOAD_URL', 'https://orcast.com/download')}" style="display: inline-block; background: #FFD700; color: #000; font-size: 15px; font-weight: 700; padding: 14px 40px; border-radius: 10px; text-decoration: none; letter-spacing: 1px;">{t['download_btn']}</a>
+                <a href="{os.getenv('APP_DOWNLOAD_URL', 'https://github.com/masterchartsmkt-oss/orclips-api/releases/download/v1.0.0/OrCast_Setup.exe')}" style="display: inline-block; background: #FFD700; color: #000; font-size: 15px; font-weight: 700; padding: 14px 40px; border-radius: 10px; text-decoration: none; letter-spacing: 1px;">{t['download_btn']}</a>
             </div>
             <div style="margin: 0 0 24px;">
                 <div style="display: flex; align-items: center; margin: 0 0 10px;">
