@@ -899,7 +899,7 @@ def update_app_version(
 # =====================================================
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "re_MEyQ8pKL_FzxViPuY4gPXnQoVLikmUasn")
-EMAIL_FROM = os.getenv("EMAIL_FROM", "OrClips <noreply@ordreen.com>")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "OrCast <noreply@ordreen.com>")
 
 # Importar requests para email no topo do módulo
 import requests as _requests_lib
