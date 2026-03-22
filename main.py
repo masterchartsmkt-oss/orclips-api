@@ -853,7 +853,7 @@ async def payment_webhook(payload: dict):
 
 # Controle de versão do app desktop
 APP_VERSION = "1.0.0"
-APP_DOWNLOAD_URL = os.getenv("APP_DOWNLOAD_URL", "https://github.com/SEU_USUARIO/orclips-releases/releases/latest/download/OrClips.exe")
+APP_DOWNLOAD_URL = os.getenv("APP_DOWNLOAD_URL", "https://github.com/masterchartsmkt-oss/orclips-api/releases/download/v1.0.0/OrCast_Setup.exe")
 
 @app.get("/health", tags=["System"])
 def health():
