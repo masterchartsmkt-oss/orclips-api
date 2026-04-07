@@ -591,8 +591,9 @@ async def payment_webhook(payload: dict):
 # HEALTH CHECK + VERSÃO
 # =====================================================
 
-APP_VERSION = "1.0.0"
-APP_DOWNLOAD_URL = os.getenv("APP_DOWNLOAD_URL", "https://github.com/masterchartsmkt-oss/orclips-api/releases/download/v1.0.0/OrCast_Setup.exe")
+APP_VERSION = os.getenv("APP_VERSION", "2.0.1")
+APP_DOWNLOAD_URL = os.getenv("APP_DOWNLOAD_URL", "https://github.com/masterchartsmkt-oss/OrCast_Doc/releases/download/v2.0.1/OrCast-v2.0.1.zip")
+APP_CHANGELOG = os.getenv("APP_CHANGELOG", "Garimpo: fila de múltiplos links + layout responsivo + correção de lag entre abas + Chromium instalado automaticamente.")
 
 @app.get("/health", tags=["System"])
 def health():
@@ -600,15 +601,17 @@ def health():
 
 @app.get("/app/version", tags=["System"])
 def app_version():
-    return {"version": APP_VERSION, "download_url": APP_DOWNLOAD_URL, "changelog": "Melhorias de estabilidade e novos recursos.", "required": False}
+    return {"version": APP_VERSION, "download_url": APP_DOWNLOAD_URL, "changelog": APP_CHANGELOG, "required": False}
 
 @app.put("/admin/app-version", tags=["Admin"])
 def update_app_version(version: str, download_url: str = None, changelog: str = None, required: bool = False, admin: User = Depends(require_admin)):
-    global APP_VERSION, APP_DOWNLOAD_URL
+    global APP_VERSION, APP_DOWNLOAD_URL, APP_CHANGELOG
     APP_VERSION = version
     if download_url:
         APP_DOWNLOAD_URL = download_url
-    return {"message": f"Versao atualizada para {version}", "download_url": APP_DOWNLOAD_URL}
+    if changelog:
+        APP_CHANGELOG = changelog
+    return {"message": f"Versao atualizada para {version}", "download_url": APP_DOWNLOAD_URL, "changelog": APP_CHANGELOG}
 
 
 # =====================================================
