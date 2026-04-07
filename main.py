@@ -670,7 +670,9 @@ def email_boas_vindas(nome: str, email: str, senha: str, plano: str, idioma: str
         "es": {"subject": "Bienvenido a OrCast! Tus credenciales de acceso", "welcome": f"Bienvenido, {nome}!", "desc": "Tu cuenta ha sido creada exitosamente. Usa las credenciales a continuacion para acceder a OrCast.", "email_label": "Correo", "senha_label": "Contrasena", "plano_label": "Plan", "how_title": "Como empezar:", "step1": "Descarga OrCast haciendo clic en el boton de abajo", "step2": "Abre la aplicacion e inicia sesion", "step3": "Disfruta el poder de tu plan!", "download_btn": "DESCARGAR ORCAST", "footer": "Este es un correo automatico. No respondas."},
     }
     t = textos.get(idioma, textos["pt"])
-    download_url = os.getenv('APP_DOWNLOAD_URL', 'https://github.com/masterchartsmkt-oss/orclips-api/releases/download/v1.0.0/OrCast_Setup.exe')
+    # Email de boas-vindas usa o INSTALADOR (.exe) — clientes novos baixam o setup,
+    # nao o ZIP de auto-update. APP_INSTALLER_URL e a env var correta para isso.
+    download_url = APP_INSTALLER_URL
     html = f"""
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #060606; border-radius: 20px; overflow: hidden; border: 1px solid #1A1A18;">
         <div style="background: #0E0E0E; padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid #1A1A18;">
