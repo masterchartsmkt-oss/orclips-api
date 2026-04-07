@@ -592,7 +592,10 @@ async def payment_webhook(payload: dict):
 # =====================================================
 
 APP_VERSION = os.getenv("APP_VERSION", "2.0.1")
-APP_DOWNLOAD_URL = os.getenv("APP_DOWNLOAD_URL", "https://github.com/masterchartsmkt-oss/OrCast_Doc/releases/download/v2.0.1/OrCast-v2.0.1.zip")
+# download_url: ZIP usado pelo Updater.exe (auto-update dos clientes existentes)
+APP_DOWNLOAD_URL = os.getenv("APP_DOWNLOAD_URL", "https://github.com/masterchartsmkt-oss/orclips-api/releases/download/v2.0.1/OrCast-v2.0.1.zip")
+# installer_url: instalador EXE para o site / clientes novos (Hotmart, landing page, etc.)
+APP_INSTALLER_URL = os.getenv("APP_INSTALLER_URL", "https://github.com/masterchartsmkt-oss/orclips-api/releases/download/v2.0.1/OrCast_Setup.exe")
 APP_CHANGELOG = os.getenv("APP_CHANGELOG", "Garimpo: fila de múltiplos links + layout responsivo + correção de lag entre abas + Chromium instalado automaticamente.")
 
 @app.get("/health", tags=["System"])
@@ -601,17 +604,30 @@ def health():
 
 @app.get("/app/version", tags=["System"])
 def app_version():
-    return {"version": APP_VERSION, "download_url": APP_DOWNLOAD_URL, "changelog": APP_CHANGELOG, "required": False}
+    return {
+        "version": APP_VERSION,
+        "download_url": APP_DOWNLOAD_URL,    # ZIP para auto-update (Updater.exe)
+        "installer_url": APP_INSTALLER_URL,  # EXE instalador (clientes novos)
+        "changelog": APP_CHANGELOG,
+        "required": False,
+    }
 
 @app.put("/admin/app-version", tags=["Admin"])
-def update_app_version(version: str, download_url: str = None, changelog: str = None, required: bool = False, admin: User = Depends(require_admin)):
-    global APP_VERSION, APP_DOWNLOAD_URL, APP_CHANGELOG
+def update_app_version(version: str, download_url: str = None, installer_url: str = None, changelog: str = None, required: bool = False, admin: User = Depends(require_admin)):
+    global APP_VERSION, APP_DOWNLOAD_URL, APP_INSTALLER_URL, APP_CHANGELOG
     APP_VERSION = version
     if download_url:
         APP_DOWNLOAD_URL = download_url
+    if installer_url:
+        APP_INSTALLER_URL = installer_url
     if changelog:
         APP_CHANGELOG = changelog
-    return {"message": f"Versao atualizada para {version}", "download_url": APP_DOWNLOAD_URL, "changelog": APP_CHANGELOG}
+    return {
+        "message": f"Versao atualizada para {version}",
+        "download_url": APP_DOWNLOAD_URL,
+        "installer_url": APP_INSTALLER_URL,
+        "changelog": APP_CHANGELOG,
+    }
 
 
 # =====================================================
